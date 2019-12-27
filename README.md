@@ -6,4 +6,4 @@ And expose your SQL Database in a form of fully REST compliant API.
 
 In repository you will find a test project that shows how the library can be used.
 
-Please be aware that generated API will expose your DB models to the API consumers. (In later versions it may support Automappers configuration)
+Please be aware that generated API will expose your DB models to the API consumers. (In later versions it may support Automapper configuration)
