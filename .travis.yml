@@ -1,5 +1,10 @@
 language: csharp
 mono: none
 dotnet: 2.1.502
-script:
- - dotnet restore
+stages:
+ - name: restore
+   script:
+    - dotnet restore
+ - name: test
+   script:
+    - dotnet test
