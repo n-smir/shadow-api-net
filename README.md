@@ -1,6 +1,6 @@
 # ShadowApiNet
-
-![](https://github.com/n-smir/shadow-api-net/workflows/Build%20%26%20test/badge.svg?branch=master)
+[![](https://img.shields.io/nuget/v/ShadowApiNet?color=%231e96ff)](https://www.nuget.org/packages/ShadowApiNet/)
+[![](https://github.com/n-smir/shadow-api-net/workflows/Build%20%26%20test/badge.svg?branch=master)](https://github.com/n-smir/shadow-api-net/actions?query=workflow%3A%22Build+%26+test%22)
 
 ShadowApiNet is a tool that allows seamless generation of RESTful API in your ASP.NET Core app.
 
