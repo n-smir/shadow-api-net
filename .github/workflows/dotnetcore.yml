@@ -1,9 +1,9 @@
 name: Build & test
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  build:
+  main:
 
     runs-on: ubuntu-latest
 
@@ -16,6 +16,9 @@ jobs:
     - name: Restore
       run: dotnet restore
     - name: Build
-      run: dotnet build
+      run: dotnet build -c Release
     - name: Test
       run: dotnet test
+    - name: Nuget Release
+      if: github.ref == 'refs/heads/master'
+      run: dotnet nuget push ./ShadowApiNet/bin/Release/ShadowApiNet.*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json 
