@@ -1,6 +1,6 @@
 name: Build & test
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -19,3 +19,5 @@ jobs:
       run: dotnet build
     - name: Test
       run: dotnet test
+    - name: Nuget Release
+      run: echo ${{secrets.NUGET_API_KEY_TEST}}
