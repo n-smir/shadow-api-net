@@ -20,4 +20,4 @@ jobs:
     - name: Test
       run: dotnet test
     - name: Nuget Release
-      run: ls
+      run: ls ./ShadowApiNet/bin
