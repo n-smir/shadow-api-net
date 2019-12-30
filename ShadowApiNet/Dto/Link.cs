@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ShadowApiNet.Dto
+﻿namespace ShadowApiNet.Dto
 {
     internal class Link
     {
