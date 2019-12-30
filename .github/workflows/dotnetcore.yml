@@ -20,6 +20,4 @@ jobs:
     - name: Test
       run: dotnet test
     - name: Nuget Release
-      with:
-        nuget_secret: ${{secrets.NUGET_API_KEY_TEST}}
       run: ls
