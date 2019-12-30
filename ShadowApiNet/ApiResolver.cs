@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ShadowApiNet.Dto;
@@ -112,7 +113,21 @@ namespace ShadowApiNet
                     this.SetStatusCode(httpContext.Response, StatusCodes.Status204NoContent);
                 }
                 else if (httpContext.Request.Method == HttpMethods.Patch) {
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status501NotImplemented);
+                    var pair = this.dbSets.Where(kvp => kvp.Key.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault();
+                    object res = await this.Context.FindAsync(pair.Value, int.Parse(pathNodes[1])); // TODO: detect Id Type and convert to proper type
+                    JsonPatchDocument patchDoc = (JsonPatchDocument)JsonConvert.DeserializeObject(await new StreamReader(httpContext.Request.Body).ReadToEndAsync(), typeof(JsonPatchDocument));
+                    if (patchDoc == null) {
+                        this.SetStatusCode(httpContext.Response, StatusCodes.Status400BadRequest);
+                    }
+                    if(res == null) {
+                        this.SetStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
+                    }
+
+                    patchDoc.ApplyTo(res);
+
+                    this.Context.Update(res);
+                    await this.Context.SaveChangesAsync();
+                    this.SetStatusCode(httpContext.Response, StatusCodes.Status204NoContent);
                 }
                 else {
                     this.SetStatusCode(httpContext.Response, StatusCodes.Status405MethodNotAllowed);
