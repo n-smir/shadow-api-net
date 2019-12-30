@@ -18,14 +18,16 @@ namespace ShadowApiNet
     {
         public string RootUriPath { get; protected set; }
         public DbContext Context { get; protected set; }
+        public IHttpHandlerFactory HttpHandlerFactory { get; protected set; }
 
         private readonly Dictionary<PropertyInfo, Type> dbSets;
         private readonly Dictionary<PropertyInfo, PropertyInfo[]> tablesFields;
 
-        public ApiResolver(DbContext context, string rootUriPath)
+        public ApiResolver(DbContext context, IHttpHandlerFactory httpHandlerFactory, string rootUriPath)
         {
             this.RootUriPath = rootUriPath;
             this.Context = context;
+            this.HttpHandlerFactory = httpHandlerFactory;
 
             this.dbSets = new Dictionary<PropertyInfo, Type>();
             this.tablesFields = new Dictionary<PropertyInfo, PropertyInfo[]>();
@@ -40,6 +42,12 @@ namespace ShadowApiNet
 
         public async Task<HttpContext> ResolveRequest(HttpContext httpContext)
         {
+
+            //IHttpMethodHandler methodHandler =  this.HttpHandlerFactory.GetHttpMethodHandler(httpContext.Request.Method);
+            //httpContext = await methodHandler.Handle(httpContext);
+
+            //return httpContext;
+
             string[] pathNodes = httpContext.Request.Path.Value.Trim(this.RootUriPath.ToCharArray()).Split('/');
 
             if (pathNodes.Length == 0 || string.IsNullOrEmpty(pathNodes[0])) { //root path only
