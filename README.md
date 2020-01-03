@@ -6,7 +6,7 @@
 
 ShadowApiNet is a tool that allows seamless generation of RESTful API in your ASP.NET Core app.
 
-ShadowApiNet can generate RESTful API based on DbContext that you provide (hence you should manage DB connection yourself. 
+ShadowApiNet can generate RESTful API based on DbContext that you provide (hence you should manage DB connection yourself). 
 And expose your SQL Database in a form of fully REST compliant API. 
 
 ### Installation
@@ -75,15 +75,11 @@ public class Startup
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseShadowApi();
-
-            app.Run(async (context) => {
-                await context.Response.WriteAsync("Hello World!");
-            });
         }
     }
 ```
 
-Now, when you start your application you'llbe able to access generated API using `/dataapi` path.
+Now, when you start your application you'll be able to access generated API using `/dataapi` path.
 
 For example:
 ``` sh
