@@ -41,6 +41,7 @@ public class BloggingContext : DbContext
 
     public class Blog
     {
+        [Key]
         public int BlogId { get; set; }
         public string Url { get; set; }
 
@@ -49,6 +50,7 @@ public class BloggingContext : DbContext
 
     public class Post
     {
+        [Key]
         public int PostId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
