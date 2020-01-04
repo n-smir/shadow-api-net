@@ -42,126 +42,12 @@ namespace ShadowApiNet
 
         public async Task<HttpContext> ResolveRequest(HttpContext httpContext)
         {
-
-            //IHttpMethodHandler methodHandler =  this.HttpHandlerFactory.GetHttpMethodHandler(httpContext.Request.Method);
-            //httpContext = await methodHandler.Handle(httpContext);
-
-            //return httpContext;
-
             string[] pathNodes = httpContext.Request.Path.Value.Trim(this.RootUriPath.ToCharArray()).Split('/');
 
-            if (pathNodes.Length == 0 || string.IsNullOrEmpty(pathNodes[0])) { //root path only
-
-                if (httpContext.Request.Method == HttpMethods.Get) {
-                    List<Link> links = new List<Link>();
-                    foreach (var prop in this.dbSets.Keys) {
-                        Link link = new Link { href = httpContext.Request.PathBase.Value.TrimEnd('/') + "/" + this.RootUriPath.Trim('/') + "/" + prop.Name.ToLower() };
-                        links.Add(link);
-                    }
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status200OK);
-                    await this.SetJsonBody(httpContext.Response, links);
-                }
-                else {
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status405MethodNotAllowed);
-                }
-            }
-            else if (pathNodes.Length == 1) { //entity name only
-                if (httpContext.Request.Method == HttpMethods.Get) {
-                    var result = this.dbSets.Keys.Where(k => k.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault()?.GetValue(this.Context);
-                    if (result != null) {
-                        this.SetStatusCode(httpContext.Response, StatusCodes.Status200OK);
-                        await this.SetJsonBody(httpContext.Response, result);
-                    }
-                    else {
-                        this.SetStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
-                    }
-                }
-                else if (httpContext.Request.Method == HttpMethods.Post) {
-                    var propType = this.dbSets.Where(pair => pair.Key.Name.ToUpper() == pathNodes[0].ToUpper()).First();
-                    object body = JsonConvert.DeserializeObject(await new StreamReader(httpContext.Request.Body).ReadToEndAsync(), propType.Value);
-                    await this.Context.AddAsync(body);
-                    await this.Context.SaveChangesAsync();
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status201Created);
-                }
-                else {
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status405MethodNotAllowed);
-                }
-            }
-            else if (pathNodes.Length == 2) { //entity name + id
-                if (httpContext.Request.Method == HttpMethods.Get) {
-                    var pair = this.dbSets.Where(kvp => kvp.Key.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault();
-                    var res = await this.Context.FindAsync(pair.Value, int.Parse(pathNodes[1])); // TODO: detect Id Type and convert to proper type
-                    if (res != null) {
-                        this.SetStatusCode(httpContext.Response, StatusCodes.Status200OK);
-                        await this.SetJsonBody(httpContext.Response, res);
-                    }
-                    else {
-                        this.SetStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
-                    }
-                }
-                else if (httpContext.Request.Method == HttpMethods.Delete) {
-                    var pair = this.dbSets.Where(kvp => kvp.Key.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault();
-                    var res = await this.Context.FindAsync(pair.Value, int.Parse(pathNodes[1])); // TODO: detect Id Type and convert to proper type
-                    this.Context.Remove(res);
-                    await this.Context.SaveChangesAsync();
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status204NoContent);
-                }
-                else if (httpContext.Request.Method == HttpMethods.Put) {
-                    var pair = this.dbSets.Where(kvp => kvp.Key.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault();
-                    object res = await this.Context.FindAsync(pair.Value, int.Parse(pathNodes[1])); // TODO: detect Id Type and convert to proper type
-                    object body = JsonConvert.DeserializeObject(await new StreamReader(httpContext.Request.Body).ReadToEndAsync(), pair.Value);
-                    //props comparison
-                    foreach (var propInfo in tablesFields[pair.Key]) {
-                        if (propInfo.GetValue(res) != propInfo.GetValue(body)) {
-                            propInfo.SetValue(res, propInfo.GetValue(body));
-                        }
-                    }
-                    this.Context.Update(res);
-                    await this.Context.SaveChangesAsync();
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status204NoContent);
-                }
-                else if (httpContext.Request.Method == HttpMethods.Patch) {
-                    var pair = this.dbSets.Where(kvp => kvp.Key.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault();
-                    object res = await this.Context.FindAsync(pair.Value, int.Parse(pathNodes[1])); // TODO: detect Id Type and convert to proper type
-                    JsonPatchDocument patchDoc = (JsonPatchDocument)JsonConvert.DeserializeObject(await new StreamReader(httpContext.Request.Body).ReadToEndAsync(), typeof(JsonPatchDocument));
-                    if (patchDoc == null) {
-                        this.SetStatusCode(httpContext.Response, StatusCodes.Status400BadRequest);
-                    }
-                    if(res == null) {
-                        this.SetStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
-                    }
-
-                    patchDoc.ApplyTo(res);
-
-                    this.Context.Update(res);
-                    await this.Context.SaveChangesAsync();
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status204NoContent);
-                }
-                else {
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status405MethodNotAllowed);
-                }
-            }
-            else {
-                this.SetStatusCode(httpContext.Response, StatusCodes.Status501NotImplemented);
-            }
+            IHttpMethodHandler methodHandler = this.HttpHandlerFactory.GetHttpMethodHandler(httpContext.Request.Method);
+            httpContext = await methodHandler.Handle(httpContext, this.RootUriPath, pathNodes, this.Context, this.dbSets, this.tablesFields);
 
             return httpContext;
-        }
-
-
-        public HttpResponse SetStatusCode(HttpResponse response, int statusCode)
-        {
-            response.StatusCode = statusCode;
-            return response;
-        }
-
-        public async Task<HttpResponse> SetJsonBody(HttpResponse response, object body)
-        {
-            string jsonBody = JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-            });
-            await response.WriteAsync(jsonBody, Encoding.UTF8);
-            return response;
         }
     }
 }
