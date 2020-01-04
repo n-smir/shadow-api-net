@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
-namespace ShadowApiNet.Interfaces
+namespace ShadowApiNet.Abstractions
 {
     internal interface IApiResolver
     {

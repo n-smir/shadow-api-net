@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using ShadowApiNet.Interfaces;
+using ShadowApiNet.Abstractions;
 
 namespace ShadowApiNet.Extensions
 {
@@ -10,7 +10,11 @@ namespace ShadowApiNet.Extensions
 
         public static IServiceCollection AddShadowApi(this IServiceCollection services, DbContext context, string rootUriPath = DefaultUriPath)
         {
-            return services.AddSingleton<IApiResolver>(new ApiResolver(context, rootUriPath));
+            services.AddSingleton<IHttpHandlerFactory, HttpMethodHandlerFactory>();
+            return services.AddSingleton<IApiResolver, ApiResolver>(service => 
+            {
+                return new ApiResolver(context, service.GetService<IHttpHandlerFactory>(), rootUriPath);
+            });
         }
     }
 }
