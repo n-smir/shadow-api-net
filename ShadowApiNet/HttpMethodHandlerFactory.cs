@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using ShadowApiNet.HttpHandlers;
-using ShadowApiNet.Interfaces;
+using ShadowApiNet.Abstractions;
 using System;
 
 namespace ShadowApiNet

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ShadowApiNet.Dto;
-using ShadowApiNet.Interfaces;
+using ShadowApiNet.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;

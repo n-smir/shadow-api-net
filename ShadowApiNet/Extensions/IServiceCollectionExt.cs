@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using ShadowApiNet.Interfaces;
+using ShadowApiNet.Abstractions;
 
 namespace ShadowApiNet.Extensions
 {

@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShadowApiNet.Interfaces
+namespace ShadowApiNet.Abstractions
 {
     internal abstract class IHttpMethodHandler
     { 

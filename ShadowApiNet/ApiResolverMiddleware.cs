@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
-using ShadowApiNet.Interfaces;
+using ShadowApiNet.Abstractions;
 using System.Threading.Tasks;
 
 namespace ShadowApiNet

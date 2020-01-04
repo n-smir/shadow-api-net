@@ -1,4 +1,4 @@
-﻿namespace ShadowApiNet.Interfaces
+﻿namespace ShadowApiNet.Abstractions
 {
     internal interface IHttpHandlerFactory
     {

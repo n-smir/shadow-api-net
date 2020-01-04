@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using ShadowApiNet.Interfaces;
+using ShadowApiNet.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
