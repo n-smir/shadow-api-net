@@ -1,15 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using ShadowApiNet.Dto;
 using ShadowApiNet.Abstractions;
-using System;
+using ShadowApiNet.Models;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ShadowApiNet
@@ -20,8 +15,7 @@ namespace ShadowApiNet
         public DbContext Context { get; protected set; }
         public IHttpHandlerFactory HttpHandlerFactory { get; protected set; }
 
-        private readonly Dictionary<PropertyInfo, Type> dbSets;
-        private readonly Dictionary<PropertyInfo, PropertyInfo[]> tablesFields;
+        private readonly Dictionary<PropertyInfo, TableModel> tables;
 
         public ApiResolver(DbContext context, IHttpHandlerFactory httpHandlerFactory, string rootUriPath)
         {
@@ -29,13 +23,16 @@ namespace ShadowApiNet
             this.Context = context;
             this.HttpHandlerFactory = httpHandlerFactory;
 
-            this.dbSets = new Dictionary<PropertyInfo, Type>();
-            this.tablesFields = new Dictionary<PropertyInfo, PropertyInfo[]>();
+            this.tables = new Dictionary<PropertyInfo, TableModel>();
             foreach (PropertyInfo prop in this.Context.GetType().GetProperties()) {
                 if (prop.PropertyType.Name.Contains("DbSet")) {
                     var type = prop.PropertyType.GetGenericArguments().FirstOrDefault();
-                    this.dbSets.Add(prop, type);
-                    this.tablesFields.Add(prop, type.GetProperties());
+
+                    this.tables.Add(prop, new TableModel {
+                        Type = type,
+                        Fields = type.GetProperties(),
+                        PK = type.GetProperties().Where(p => p.CustomAttributes.Where(ca => ca.AttributeType.Name == "KeyAttribute").Any()).FirstOrDefault()
+                    });
                 }
             }
         }
@@ -45,7 +42,7 @@ namespace ShadowApiNet
             string[] pathNodes = httpContext.Request.Path.Value.Trim(this.RootUriPath.ToCharArray()).Split('/');
 
             IHttpMethodHandler methodHandler = this.HttpHandlerFactory.GetHttpMethodHandler(httpContext.Request.Method);
-            httpContext = await methodHandler.Handle(httpContext, this.RootUriPath, pathNodes, this.Context, this.dbSets, this.tablesFields);
+            httpContext = await methodHandler.Handle(httpContext, this.RootUriPath, pathNodes, this.Context, this.tables);
 
             return httpContext;
         }
