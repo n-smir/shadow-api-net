@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using ShadowApiNet.Abstractions;
 using ShadowApiNet.Models;
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
