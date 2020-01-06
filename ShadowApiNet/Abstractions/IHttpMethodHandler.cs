@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using ShadowApiNet.Dto;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -19,10 +21,12 @@ namespace ShadowApiNet.Abstractions
             return response;
         }
 
-        public async Task<HttpResponse> SetJsonBody(HttpResponse response, object body)
+        public async Task<HttpResponse> SetJsonBody(HttpResponse response, ResponseWithLinksDto body)
         {
             string jsonBody = JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings {
-                ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Formatting = Formatting.Indented
             });
             await response.WriteAsync(jsonBody, Encoding.UTF8);
             return response;

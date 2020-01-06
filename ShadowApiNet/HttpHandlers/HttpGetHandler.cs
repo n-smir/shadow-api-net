@@ -15,38 +15,65 @@ namespace ShadowApiNet.HttpHandlers
 
         internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes, DbContext dbContext, Dictionary<PropertyInfo, Type> dbSets, Dictionary<PropertyInfo, PropertyInfo[]> tablesFields)
         {
+            string requestPath = httpContext.Request.Scheme + "://" + httpContext.Request.Host.Value + httpContext.Request.Path.Value;
+
+            ResponseWithLinksDto response = new ResponseWithLinksDto();
+
             if (pathNodes.Length == 0 || string.IsNullOrEmpty(pathNodes[0])) { //root path only
-                    List<Link> links = new List<Link>();
-                    foreach (var prop in dbSets.Keys) {
-                        Link link = new Link { href = httpContext.Request.PathBase.Value.TrimEnd('/') + "/" + rootUriPath.Trim('/') + "/" + prop.Name.ToLower() };
-                        links.Add(link);
-                    }
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status200OK);
-                    await this.SetJsonBody(httpContext.Response, links);
+                foreach (var prop in dbSets.Keys) {
+                    response.Links.Add(new LinkDto(requestPath + prop.Name.ToLower(), "self", "GET"));
+                    response.Links.Add(new LinkDto(requestPath + prop.Name.ToLower(), "create-" + prop.Name.ToLower(), "POST"));
+                }
+                this.SetStatusCode(httpContext.Response, StatusCodes.Status200OK);
+                await this.SetJsonBody(httpContext.Response, response);
             }
             else if (pathNodes.Length == 1) { //entity name only
-                    var result = dbSets.Keys.Where(k => k.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault()?.GetValue(dbContext);
-                    if (result != null) {
-                        this.SetStatusCode(httpContext.Response, StatusCodes.Status200OK);
-                        await this.SetJsonBody(httpContext.Response, result);
+                IQueryable result = (IQueryable)dbSets.Keys.Where(k => k.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault()?.GetValue(dbContext);
+                if (result != null) {
+                    response.Value = new List<ResponseWithLinksDto>();
+                    foreach(object obj in result) {
+                        ((List<ResponseWithLinksDto>)response.Value).Add(new ResponseWithLinksDto {
+                            Value = obj,
+                            Links = new List<LinkDto> {
+                                new LinkDto(requestPath + "/{id}", "self", "GET"),
+                                new LinkDto(requestPath + "/{id}", "update", "PUT"),
+                                new LinkDto(requestPath + "/{id}", "partial-update", "PATCH"),
+                                new LinkDto(requestPath + "/{id}", "delete", "DELETE")
+                            }
+                        });
                     }
-                    else {
-                        this.SetStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
-                    }
+                    response.Links = new List<LinkDto>() {
+                        new LinkDto(requestPath + pathNodes[0].ToLower(), "self", "GET"),
+                        new LinkDto(requestPath + pathNodes[0].ToLower(), "create", "POST"),
+                    };
+
+                    this.SetStatusCode(httpContext.Response, StatusCodes.Status200OK);
+                    await this.SetJsonBody(httpContext.Response, response);
+                }
+                else {
+                    this.SetStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
+                }
             }
             else if (pathNodes.Length == 2) { //entity name + id
-                    var pair = dbSets.Where(kvp => kvp.Key.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault();
-                    var res = await dbContext.FindAsync(pair.Value, int.Parse(pathNodes[1])); // TODO: detect Id Type and convert to proper type
-                    if (res != null) {
-                        this.SetStatusCode(httpContext.Response, StatusCodes.Status200OK);
-                        await this.SetJsonBody(httpContext.Response, res);
-                    }
-                    else {
-                        this.SetStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
-                    }
+                var pair = dbSets.Where(kvp => kvp.Key.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault();
+                var res = await dbContext.FindAsync(pair.Value, int.Parse(pathNodes[1])); // TODO: detect Id Type and convert to proper type
+                if (res != null) {
+                    response.Value = res;
+                    response.Links = new List<LinkDto>() {
+                            new LinkDto(requestPath, "self", "GET"),
+                            new LinkDto(requestPath, "update", "PUT"),
+                            new LinkDto(requestPath, "partial-update", "PATCH"),
+                            new LinkDto(requestPath, "delete", "DELETE")
+                    };
+                    this.SetStatusCode(httpContext.Response, StatusCodes.Status200OK);
+                    await this.SetJsonBody(httpContext.Response, response);
                 }
+                else {
+                    this.SetStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
+                }
+            }
 
-                return httpContext;
+            return httpContext;
         }
     }
 }
