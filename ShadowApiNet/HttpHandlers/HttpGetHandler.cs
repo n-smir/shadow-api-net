@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using ShadowApiNet.Abstractions;
 using ShadowApiNet.Dto;
@@ -13,7 +13,6 @@ namespace ShadowApiNet.HttpHandlers
 {
     internal class HttpGetHandler : IHttpMethodHandler
     {
-
         internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes, DbContext dbContext, Dictionary<PropertyInfo, TableModel> tables)
         {
             string requestPath = httpContext.Request.Scheme + "://" + httpContext.Request.Host.Value + httpContext.Request.Path.Value + "/";
