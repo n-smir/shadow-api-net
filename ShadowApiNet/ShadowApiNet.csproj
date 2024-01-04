@@ -6,7 +6,7 @@
     <Authors>Nikita Smirnov</Authors>
     <Version>0.1.4</Version>
     <Description>ShadowApiNet is a tool that allows seamless generation of RESTful API in your ASP.NET Core app.</Description>
-    <PackageLicenseUrl>https://github.com/n-smir/shadow-api-net/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/n-smir/shadow-api-net</PackageProjectUrl>
     <RepositoryUrl>https://github.com/n-smir/shadow-api-net</RepositoryUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
