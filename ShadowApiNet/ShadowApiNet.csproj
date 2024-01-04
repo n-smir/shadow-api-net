@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Nikita Smirnov</Authors>
-    <Version>0.1.4</Version>
+    <Version>0.1.5</Version>
     <Description>ShadowApiNet is a tool that allows seamless generation of RESTful API in your ASP.NET Core app.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/n-smir/shadow-api-net</PackageProjectUrl>
