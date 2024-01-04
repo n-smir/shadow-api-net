@@ -29,7 +29,7 @@ namespace ShadowApiNet
                 case string s when s == HttpMethods.Trace:
                     return new HttpTraceHandler();
                 default:
-                    throw new NotImplementedException();
+                    throw new NotSupportedException($"Unknown HTTP method: {httpMethod}");
             }
         }
     }
