@@ -15,7 +15,8 @@ namespace ShadowApiNet
 
         public async Task Invoke(HttpContext httpContext, IApiResolver apiResolver)
         {
-            if (!httpContext.Request.Path.Value.Contains(apiResolver.RootUriPath)) {
+            if (!httpContext.Request.Path.Value.Contains(apiResolver.RootUriPath))
+            {
                 await _next.Invoke(httpContext);
                 return;
             }

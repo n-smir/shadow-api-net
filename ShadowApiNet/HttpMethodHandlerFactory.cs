@@ -9,7 +9,8 @@ namespace ShadowApiNet
     {
         public IHttpMethodHandler GetHttpMethodHandler(string httpMethod)
         {
-            switch (httpMethod) {
+            switch (httpMethod)
+            {
                 case string s when s == HttpMethods.Get:
                     return new HttpGetHandler();
                 case string s when s == HttpMethods.Post:

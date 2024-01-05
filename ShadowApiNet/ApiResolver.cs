@@ -24,11 +24,14 @@ namespace ShadowApiNet
             this.HttpHandlerFactory = httpHandlerFactory;
 
             this.tables = new Dictionary<PropertyInfo, TableModel>();
-            foreach (PropertyInfo prop in this.Context.GetType().GetProperties()) {
-                if (prop.PropertyType.Name.Contains("DbSet")) {
+            foreach (PropertyInfo prop in this.Context.GetType().GetProperties())
+            {
+                if (prop.PropertyType.Name.Contains("DbSet"))
+                {
                     var type = prop.PropertyType.GetGenericArguments().FirstOrDefault();
 
-                    this.tables.Add(prop, new TableModel {
+                    this.tables.Add(prop, new TableModel
+                    {
                         Type = type,
                         Fields = type.GetProperties(),
                         PK = type.GetProperties().Where(p => p.CustomAttributes.Where(ca => ca.AttributeType.Name == "KeyAttribute").Any()).FirstOrDefault()

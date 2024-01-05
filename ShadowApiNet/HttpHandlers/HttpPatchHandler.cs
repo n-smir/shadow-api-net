@@ -17,15 +17,18 @@ namespace ShadowApiNet.HttpHandlers
     {
         internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes, DbContext dbContext, Dictionary<PropertyInfo, TableModel> tables)
         {
-            if (pathNodes.Length == 2) { //entity name + id
+            if (pathNodes.Length == 2)
+            { //entity name + id
                 var pair = tables.Where(kvp => kvp.Key.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault();
                 object res = await dbContext.FindAsync(pair.Value.Type, Convert.ChangeType(pathNodes[1], pair.Value.PK.PropertyType));
-                
+
                 JsonPatchDocument patchDoc = (JsonPatchDocument)JsonConvert.DeserializeObject(await new StreamReader(httpContext.Request.Body).ReadToEndAsync(), typeof(JsonPatchDocument));
-                if (patchDoc == null) {
+                if (patchDoc == null)
+                {
                     this.SetStatusCode(httpContext.Response, StatusCodes.Status400BadRequest);
                 }
-                if (res == null) {
+                if (res == null)
+                {
                     this.SetStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
                 }
 

@@ -23,7 +23,8 @@ namespace ShadowApiNet.Abstractions
 
         public async Task<HttpResponse> SetJsonBody(HttpResponse response, ResponseWithLinksDto body)
         {
-            string jsonBody = JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings {
+            string jsonBody = JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings
+            {
                 ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 Formatting = Formatting.Indented
