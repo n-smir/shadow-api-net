@@ -8,7 +8,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
+    - uses: dorny/paths-filter@v3
+      id: filter
+      with:
+        filters: |
+          ShadowApiNet:
+            - 'ShadowApiNet/**'
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3
       with:
@@ -20,5 +26,5 @@ jobs:
     - name: Build
       run: dotnet build -c Release
     - name: Nuget Release
-      if: github.ref == 'refs/heads/main'
+      if: steps.filter.outputs.ShadowApiNet == 'true' && github.ref == 'refs/heads/main'
       run: dotnet nuget push ./ShadowApiNet/bin/Release/ShadowApiNet.*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json 
