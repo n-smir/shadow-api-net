@@ -1,0 +1,6 @@
+@ShadowApiNet.Example_HostAddress = http://localhost:5111
+
+GET {{ShadowApiNet.Example_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

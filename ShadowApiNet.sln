@@ -5,6 +5,10 @@ VisualStudioVersion = 15.0.28307.645
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowApiNet", "ShadowApiNet\ShadowApiNet.csproj", "{14AC84A2-6851-4AB8-9891-69AA34D2DF06}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowApiNet.Tests", "ShadowApiNet.Tests\ShadowApiNet.Tests.csproj", "{1BF5F4BC-ADAD-4DB6-A1BD-C439ED891866}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShadowApiNet.Example", "ShadowApiNet.Example\ShadowApiNet.Example.csproj", "{D21E61A9-F944-4CBA-ADCC-D0EEBF132DE4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,6 +23,14 @@ Global
 		{04061C6E-957D-4AAC-9005-CFF20B50EF08}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{04061C6E-957D-4AAC-9005-CFF20B50EF08}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{04061C6E-957D-4AAC-9005-CFF20B50EF08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1BF5F4BC-ADAD-4DB6-A1BD-C439ED891866}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BF5F4BC-ADAD-4DB6-A1BD-C439ED891866}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1BF5F4BC-ADAD-4DB6-A1BD-C439ED891866}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1BF5F4BC-ADAD-4DB6-A1BD-C439ED891866}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D21E61A9-F944-4CBA-ADCC-D0EEBF132DE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D21E61A9-F944-4CBA-ADCC-D0EEBF132DE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D21E61A9-F944-4CBA-ADCC-D0EEBF132DE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D21E61A9-F944-4CBA-ADCC-D0EEBF132DE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
