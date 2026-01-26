@@ -1,27 +1,25 @@
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using ShadowApiNet.Dto;
-using ShadowApiNet.Models;
-using System.Collections.Generic;
-using System.Reflection;
+using ShadowApiNet.Utils;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ShadowApiNet.Abstractions
 {
-    internal abstract class IHttpMethodHandler
+    internal abstract class IHttpMethodHandler(DbAccessor dbAccessor)
     {
-        internal abstract Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes, DbContext dbContext, Dictionary<PropertyInfo, TableModel> tables);
+        protected readonly DbAccessor _dbAccessor = dbAccessor;
 
-        public HttpResponse SetStatusCode(HttpResponse response, int statusCode)
+        internal abstract Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes);
+
+        protected static void SetResponseStatusCode(HttpResponse response, int statusCode)
         {
             response.StatusCode = statusCode;
-            return response;
         }
 
-        public async Task<HttpResponse> SetJsonBody(HttpResponse response, ResponseWithLinksDto body)
+        protected static async Task SetJsonBody(HttpResponse response, ResponseWithLinksDto body)
         {
             string jsonBody = JsonConvert.SerializeObject(body, Formatting.Indented, new JsonSerializerSettings
             {
@@ -30,7 +28,6 @@ namespace ShadowApiNet.Abstractions
                 Formatting = Formatting.Indented
             });
             await response.WriteAsync(jsonBody, Encoding.UTF8);
-            return response;
         }
     }
 }

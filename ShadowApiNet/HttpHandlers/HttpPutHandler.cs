@@ -1,37 +1,41 @@
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ShadowApiNet.Abstractions;
-using ShadowApiNet.Models;
-using System;
-using System.Collections.Generic;
+using ShadowApiNet.Utils;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace ShadowApiNet.HttpHandlers
 {
-    internal class HttpPutHandler : IHttpMethodHandler
+    internal class HttpPutHandler(DbAccessor dbAccessor) : IHttpMethodHandler(dbAccessor)
     {
-        internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes, DbContext dbContext, Dictionary<PropertyInfo, TableModel> tables)
+        internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes)
         {
             if (pathNodes.Length == 2)
             { //entity name + id
-                var pair = tables.Where(kvp => kvp.Key.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault();
-                object res = await dbContext.FindAsync(pair.Value.Type, Convert.ChangeType(pathNodes[1], pair.Value.PK.PropertyType)); // TODO: detect Id Type and convert to proper type
-                object body = JsonConvert.DeserializeObject(await new StreamReader(httpContext.Request.Body).ReadToEndAsync(), pair.Value.Type);
-                //props comparison
-                foreach (var propInfo in tables[pair.Key].Fields)
+                var entityName = pathNodes[0];
+                var entityId = pathNodes[1];
+                var existingObject = await _dbAccessor.GetObjectByPrimaryKey(entityName, entityId);
+                if (existingObject == null)
                 {
-                    if (propInfo.GetValue(res) != propInfo.GetValue(body))
+                    SetResponseStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
+                    return httpContext;
+                }
+
+                var objectType = _dbAccessor.ResolveObjectType(entityName);
+                var bodyObject = JsonConvert.DeserializeObject(await new StreamReader(httpContext.Request.Body).ReadToEndAsync(), objectType);
+                var metadata = _dbAccessor.ResolveObjectMetadata(entityName);
+
+                //props comparison
+                foreach (var propInfo in metadata.Value.Fields)
+                {
+                    if (propInfo.GetValue(existingObject) != propInfo.GetValue(bodyObject))
                     {
-                        propInfo.SetValue(res, propInfo.GetValue(body));
+                        propInfo.SetValue(existingObject, propInfo.GetValue(bodyObject));
                     }
                 }
-                dbContext.Update(res);
-                await dbContext.SaveChangesAsync();
-                this.SetStatusCode(httpContext.Response, StatusCodes.Status204NoContent);
+                await _dbAccessor.UpdateObject(existingObject);
+                SetResponseStatusCode(httpContext.Response, StatusCodes.Status204NoContent);
             }
 
             return httpContext;

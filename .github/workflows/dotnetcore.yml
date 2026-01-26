@@ -15,10 +15,10 @@ jobs:
         dotnet-version: 8.0.x
     - name: Restore
       run: dotnet restore
-    - name: Build
-      run: dotnet build -c Release
     - name: Test
       run: dotnet test
+    - name: Build
+      run: dotnet build -c Release
     - name: Nuget Release
       if: github.ref == 'refs/heads/master'
       run: dotnet nuget push ./ShadowApiNet/bin/Release/ShadowApiNet.*.nupkg -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json 

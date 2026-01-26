@@ -10,7 +10,7 @@ using ShadowApiNet.Example;
 namespace ShadowApiNet.Example.Migrations
 {
     [DbContext(typeof(BloggingContext))]
-    [Migration("20240105003825_InitialCreate")]
+    [Migration("20240318150804_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace ShadowApiNet.Example.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Url")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

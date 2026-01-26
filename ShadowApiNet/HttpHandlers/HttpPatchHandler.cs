@@ -1,42 +1,39 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ShadowApiNet.Abstractions;
-using ShadowApiNet.Models;
-using System;
-using System.Collections.Generic;
+using ShadowApiNet.Utils;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace ShadowApiNet.HttpHandlers
 {
-    internal class HttpPatchHandler : IHttpMethodHandler
+    internal class HttpPatchHandler(DbAccessor dbAccessor) : IHttpMethodHandler(dbAccessor)
     {
-        internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes, DbContext dbContext, Dictionary<PropertyInfo, TableModel> tables)
+        internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes)
         {
             if (pathNodes.Length == 2)
             { //entity name + id
-                var pair = tables.Where(kvp => kvp.Key.Name.ToUpper() == pathNodes[0].ToUpper()).FirstOrDefault();
-                object res = await dbContext.FindAsync(pair.Value.Type, Convert.ChangeType(pathNodes[1], pair.Value.PK.PropertyType));
+                var entityName = pathNodes[0];
+                var entityId = pathNodes[1];
+                var existingObject = await _dbAccessor.GetObjectByPrimaryKey(entityName, entityId);
 
                 JsonPatchDocument patchDoc = (JsonPatchDocument)JsonConvert.DeserializeObject(await new StreamReader(httpContext.Request.Body).ReadToEndAsync(), typeof(JsonPatchDocument));
                 if (patchDoc == null)
                 {
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status400BadRequest);
+                    SetResponseStatusCode(httpContext.Response, StatusCodes.Status400BadRequest);
+                    return httpContext;
                 }
-                if (res == null)
+                if (existingObject == null)
                 {
-                    this.SetStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
+                    SetResponseStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
+                    return httpContext;
                 }
 
-                patchDoc.ApplyTo(res);
+                patchDoc.ApplyTo(existingObject);
 
-                dbContext.Update(res);
-                await dbContext.SaveChangesAsync();
-                this.SetStatusCode(httpContext.Response, StatusCodes.Status204NoContent);
+                await _dbAccessor.UpdateObject(existingObject);
+                SetResponseStatusCode(httpContext.Response, StatusCodes.Status204NoContent);
             }
 
             return httpContext;

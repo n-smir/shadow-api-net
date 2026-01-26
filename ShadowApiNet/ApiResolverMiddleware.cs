@@ -4,14 +4,9 @@ using System.Threading.Tasks;
 
 namespace ShadowApiNet
 {
-    internal class ApiResolverMiddleware
+    internal class ApiResolverMiddleware(RequestDelegate next)
     {
-        private readonly RequestDelegate _next;
-
-        public ApiResolverMiddleware(RequestDelegate next)
-        {
-            _next = next;
-        }
+        private readonly RequestDelegate _next = next;
 
         public async Task Invoke(HttpContext httpContext, IApiResolver apiResolver)
         {

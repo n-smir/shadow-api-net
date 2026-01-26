@@ -3,6 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 public class BloggingContext : DbContext
 {
@@ -16,6 +17,7 @@ public class BloggingContext : DbContext
         var folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
         DbPath = Path.Join(path, "blogging.db");
+        Console.WriteLine(DbPath);
     }
 
     // The following configures EF to create a Sqlite database file in the
@@ -26,14 +28,16 @@ public class BloggingContext : DbContext
 
 public class Blog
 {
+    [Key]
     public int BlogId { get; set; }
-    public required string Url { get; set; }
+    public required string Name { get; set; }
 
     public List<Post> Posts { get; } = new();
 }
 
 public class Post
 {
+    [Key]
     public int PostId { get; set; }
     public required string Title { get; set; }
     public string? Content { get; set; }
