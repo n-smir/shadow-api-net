@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using ShadowApiNet.Abstractions;
+using ShadowApiNet.Models;
 using ShadowApiNet.Utils;
 using System.Threading.Tasks;
 
@@ -7,13 +8,11 @@ namespace ShadowApiNet.HttpHandlers
 {
     internal class HttpDeleteHandler(DbAccessor dbAccessor) : IHttpMethodHandler(dbAccessor)
     {
-        internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes)
+        internal override async Task<HttpContext> Handle(HttpContext httpContext, PathInfo pathInfo)
         {
-            if (pathNodes.Length == 2)
-            { //entity name + id
-                var entityName = pathNodes[0];
-                var entityId = pathNodes[1];
-                var result = await _dbAccessor.GetObjectByPrimaryKey(entityName, entityId);
+            if (pathInfo.IsResource)
+            {
+                var result = await _dbAccessor.GetObjectByPrimaryKey(pathInfo.EntityName, pathInfo.EntityId);
                 if (result != null)
                 {
                     await _dbAccessor.DeleteObject(result);

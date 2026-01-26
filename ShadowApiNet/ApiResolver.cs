@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using ShadowApiNet.Abstractions;
+using ShadowApiNet.Models;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -12,10 +13,10 @@ namespace ShadowApiNet
 
         public async Task<HttpContext> ResolveRequest(HttpContext httpContext)
         {
-            string[] pathNodes = [.. httpContext.Request.Path.Value.Split('/').Where((node) => node != string.Empty && node != this.RootUriPath)];
+            PathInfo pathInfo = new([.. httpContext.Request.Path.Value.Split('/').Where((node) => node != string.Empty && node != RootUriPath)]);
 
-            IHttpMethodHandler methodHandler = this.HttpHandlerFactory.GetHttpMethodHandler(httpContext.Request.Method);
-            httpContext = await methodHandler.Handle(httpContext, this.RootUriPath, pathNodes);
+            IHttpMethodHandler methodHandler = HttpHandlerFactory.GetHttpMethodHandler(httpContext.Request.Method);
+            httpContext = await methodHandler.Handle(httpContext, pathInfo);
 
             return httpContext;
         }

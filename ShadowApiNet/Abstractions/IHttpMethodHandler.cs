@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using ShadowApiNet.Dto;
+using ShadowApiNet.Models;
 using ShadowApiNet.Utils;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ namespace ShadowApiNet.Abstractions
     {
         protected readonly DbAccessor _dbAccessor = dbAccessor;
 
-        internal abstract Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes);
+        internal abstract Task<HttpContext> Handle(HttpContext httpContext, PathInfo pathInfo);
 
         protected static void SetResponseStatusCode(HttpResponse response, int statusCode)
         {

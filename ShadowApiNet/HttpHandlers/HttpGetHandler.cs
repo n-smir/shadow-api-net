@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using ShadowApiNet.Abstractions;
 using ShadowApiNet.Dto;
+using ShadowApiNet.Models;
 using ShadowApiNet.Utils;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,14 +10,14 @@ namespace ShadowApiNet.HttpHandlers
 {
     internal class HttpGetHandler(DbAccessor dbAccessor) : IHttpMethodHandler(dbAccessor)
     {
-        internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes)
+        internal override async Task<HttpContext> Handle(HttpContext httpContext, PathInfo pathInfo)
         {
             string requestPath = httpContext.Request.Scheme + "://" + httpContext.Request.Host.Value + httpContext.Request.Path.Value + "/";
 
             ResponseWithLinksDto response = new ResponseWithLinksDto();
 
-            if (pathNodes.Length == 0 || string.IsNullOrEmpty(pathNodes[0]))
-            { //root path only
+            if (pathInfo.IsRoot)
+            {
                 foreach (var tableName in _dbAccessor.GetTableNames())
                 {
                     response.Links.Add(new LinkDto(requestPath + tableName, "self", HttpMethods.Get));
@@ -25,14 +26,13 @@ namespace ShadowApiNet.HttpHandlers
                 SetResponseStatusCode(httpContext.Response, StatusCodes.Status200OK);
                 await SetJsonBody(httpContext.Response, response);
             }
-            else if (pathNodes.Length == 1)
-            { //entity name only
-                var entityName = pathNodes[0];
-                var result = await _dbAccessor.GetAllObjectInRange(entityName, 0, 0);
+            else if (pathInfo.IsCollection)
+            {
+                var result = await _dbAccessor.GetAllObjectInRange(pathInfo.EntityName, 0, 0);
                 if (result != null)
                 {
                     response.Value = new List<ResponseWithLinksDto>();
-                    var tablePK = _dbAccessor.GetTablePrimaryKey(entityName);
+                    var tablePK = _dbAccessor.GetTablePrimaryKey(pathInfo.EntityName);
                     foreach (object obj in result)
                     {
                         var id = tablePK?.GetValue(obj) ?? "{id}";
@@ -53,13 +53,9 @@ namespace ShadowApiNet.HttpHandlers
                     await SetErrorBody(httpContext.Response, "Not Found", "The requested resource was not found");
                 }
             }
-            else if (pathNodes.Length == 2)
-            { //entity name + id
-                var entityName = pathNodes[0];
-                var entityId = pathNodes[1];
-                // var pair = tables.Where(kvp => kvp.Key.Name.Equals(entityName, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
-                // var res = await dbContext.FindAsync(pair.Value.Type, Convert.ChangeType(entityId, pair.Value.PK.PropertyType));
-                var result = await _dbAccessor.GetObjectByPrimaryKey(entityName, entityId);
+            else if (pathInfo.IsResource)
+            {
+                var result = await _dbAccessor.GetObjectByPrimaryKey(pathInfo.EntityName, pathInfo.EntityId);
                 if (result != null)
                 {
                     response.Value = result;

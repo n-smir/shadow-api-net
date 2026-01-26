@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using ShadowApiNet.Abstractions;
+using ShadowApiNet.Models;
 using ShadowApiNet.Utils;
 using System.Threading.Tasks;
 
@@ -7,16 +8,16 @@ namespace ShadowApiNet.HttpHandlers
 {
     internal class HttpOptionsHandler(DbAccessor dbAccessor) : IHttpMethodHandler(dbAccessor)
     {
-        internal override Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes)
+        internal override Task<HttpContext> Handle(HttpContext httpContext, PathInfo pathInfo)
         {
             httpContext.Response.ContentType = "application/json";
 
             string allowedMethods;
-            if (pathNodes.Length == 0 || string.IsNullOrEmpty(pathNodes[0]))
+            if (pathInfo.IsRoot)
             {
                 allowedMethods = "GET, OPTIONS";
             }
-            else if (pathNodes.Length == 1)
+            else if (pathInfo.IsCollection)
             {
                 allowedMethods = "GET, POST, OPTIONS, HEAD";
             }

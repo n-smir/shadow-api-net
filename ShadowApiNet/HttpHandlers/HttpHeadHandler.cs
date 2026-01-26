@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using ShadowApiNet.Abstractions;
+using ShadowApiNet.Models;
 using ShadowApiNet.Utils;
 using System.Threading.Tasks;
 
@@ -7,21 +8,20 @@ namespace ShadowApiNet.HttpHandlers
 {
     internal class HttpHeadHandler(DbAccessor dbAccessor) : IHttpMethodHandler(dbAccessor)
     {
-        internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes)
+        internal override async Task<HttpContext> Handle(HttpContext httpContext, PathInfo pathInfo)
         {
             httpContext.Response.ContentType = "application/json";
 
-            if (pathNodes.Length == 0 || string.IsNullOrEmpty(pathNodes[0]))
+            if (pathInfo.IsRoot)
             {
                 SetResponseStatusCode(httpContext.Response, StatusCodes.Status200OK);
             }
-            else if (pathNodes.Length == 1)
+            else if (pathInfo.IsCollection)
             {
-                var entityName = pathNodes[0];
                 try
                 {
                     var tableNames = _dbAccessor.GetTableNames();
-                    if (tableNames.Contains(entityName.ToLower()))
+                    if (tableNames.Contains(pathInfo.EntityName.ToLower()))
                     {
                         SetResponseStatusCode(httpContext.Response, StatusCodes.Status200OK);
                     }
@@ -35,13 +35,11 @@ namespace ShadowApiNet.HttpHandlers
                     SetResponseStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
                 }
             }
-            else if (pathNodes.Length == 2)
+            else if (pathInfo.IsResource)
             {
-                var entityName = pathNodes[0];
-                var entityId = pathNodes[1];
                 try
                 {
-                    var result = await _dbAccessor.GetObjectByPrimaryKey(entityName, entityId);
+                    var result = await _dbAccessor.GetObjectByPrimaryKey(pathInfo.EntityName, pathInfo.EntityId);
                     SetResponseStatusCode(httpContext.Response,
                         result != null ? StatusCodes.Status200OK : StatusCodes.Status404NotFound);
                 }

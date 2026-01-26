@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using ShadowApiNet.Abstractions;
+using ShadowApiNet.Models;
 using ShadowApiNet.Utils;
 using System;
 using System.IO;
@@ -10,17 +11,16 @@ namespace ShadowApiNet.HttpHandlers
 {
     internal class HttpPostHandler(DbAccessor dbAccessor) : IHttpMethodHandler(dbAccessor)
     {
-        internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes)
+        internal override async Task<HttpContext> Handle(HttpContext httpContext, PathInfo pathInfo)
         {
-            if (pathNodes.Length == 0 || string.IsNullOrEmpty(pathNodes[0]))
+            if (pathInfo.IsRoot)
             {
                 SetResponseStatusCode(httpContext.Response, StatusCodes.Status400BadRequest);
                 await SetErrorBody(httpContext.Response, "Bad Request", "Entity name is required");
             }
-            else if (pathNodes.Length == 1)
+            else if (pathInfo.IsCollection)
             {
-                string objectName = pathNodes[0];
-                Type objectType = _dbAccessor.ResolveObjectType(objectName);
+                Type objectType = _dbAccessor.ResolveObjectType(pathInfo.EntityName);
                 object body = JsonConvert.DeserializeObject(await new StreamReader(httpContext.Request.Body).ReadToEndAsync(), objectType);
 
                 if (body == null)
