@@ -1,6 +1,6 @@
 # ShadowApiNet
 [![](https://img.shields.io/nuget/v/ShadowApiNet?color=%231e96ff)](https://www.nuget.org/packages/ShadowApiNet/)
-[![](https://github.com/n-smir/shadow-api-net/workflows/Build%20%26%20test/badge.svg?branch=master)](https://github.com/n-smir/shadow-api-net/actions?query=workflow%3A%22Build+%26+test%22)
+[![](https://github.com/n-smir/shadow-api-net/workflows/Build%20%26%20test/badge.svg)](https://github.com/n-smir/shadow-api-net/actions?query=workflow%3A%22Build+%26+test%22)
 
 #### Warning - the project is still in POC stage, so it might not feature a full functionality yet, functionality and usage might change as well.
 
