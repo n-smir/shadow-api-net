@@ -50,6 +50,7 @@ namespace ShadowApiNet.HttpHandlers
                 else
                 {
                     SetResponseStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
+                    await SetErrorBody(httpContext.Response, "Not Found", "The requested resource was not found");
                 }
             }
             else if (pathNodes.Length == 2)
@@ -69,6 +70,7 @@ namespace ShadowApiNet.HttpHandlers
                 else
                 {
                     SetResponseStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
+                    await SetErrorBody(httpContext.Response, "Not Found", "The requested resource was not found");
                 }
             }
 

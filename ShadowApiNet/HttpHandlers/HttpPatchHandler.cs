@@ -22,11 +22,13 @@ namespace ShadowApiNet.HttpHandlers
                 if (patchDoc == null)
                 {
                     SetResponseStatusCode(httpContext.Response, StatusCodes.Status400BadRequest);
+                    await SetErrorBody(httpContext.Response, "Bad Request", "Request body is required and must be valid JSON Patch format");
                     return httpContext;
                 }
                 if (existingObject == null)
                 {
                     SetResponseStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
+                    await SetErrorBody(httpContext.Response, "Not Found", "The requested resource was not found");
                     return httpContext;
                 }
 

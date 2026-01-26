@@ -22,6 +22,7 @@ namespace ShadowApiNet.HttpHandlers
                 else
                 {
                     SetResponseStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
+                    await SetErrorBody(httpContext.Response, "Not Found", "The requested resource was not found");
                 }
             }
             return httpContext;
