@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using ShadowApiNet.Abstractions;
+using ShadowApiNet.Models;
 using ShadowApiNet.Utils;
 using System.IO;
 using System.Threading.Tasks;
@@ -9,24 +10,22 @@ namespace ShadowApiNet.HttpHandlers
 {
     internal class HttpPutHandler(DbAccessor dbAccessor) : IHttpMethodHandler(dbAccessor)
     {
-        internal override async Task<HttpContext> Handle(HttpContext httpContext, string rootUriPath, string[] pathNodes)
+        internal override async Task<HttpContext> Handle(HttpContext httpContext, PathInfo pathInfo)
         {
-            if (pathNodes.Length == 2)
-            { //entity name + id
-                var entityName = pathNodes[0];
-                var entityId = pathNodes[1];
-                var existingObject = await _dbAccessor.GetObjectByPrimaryKey(entityName, entityId);
+            if (pathInfo.IsResource)
+            {
+                var existingObject = await _dbAccessor.GetObjectByPrimaryKey(pathInfo.EntityName, pathInfo.EntityId);
                 if (existingObject == null)
                 {
                     SetResponseStatusCode(httpContext.Response, StatusCodes.Status404NotFound);
+                    await SetErrorBody(httpContext.Response, "Not Found", "The requested resource was not found");
                     return httpContext;
                 }
 
-                var objectType = _dbAccessor.ResolveObjectType(entityName);
+                var objectType = _dbAccessor.ResolveObjectType(pathInfo.EntityName);
                 var bodyObject = JsonConvert.DeserializeObject(await new StreamReader(httpContext.Request.Body).ReadToEndAsync(), objectType);
-                var metadata = _dbAccessor.ResolveObjectMetadata(entityName);
+                var metadata = _dbAccessor.ResolveObjectMetadata(pathInfo.EntityName);
 
-                //props comparison
                 foreach (var propInfo in metadata.Value.Fields)
                 {
                     if (propInfo.GetValue(existingObject) != propInfo.GetValue(bodyObject))

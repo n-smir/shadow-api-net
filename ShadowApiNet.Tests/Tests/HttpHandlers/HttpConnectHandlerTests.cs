@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using ShadowApiNet.HttpHandlers;
+using ShadowApiNet.Models;
 using ShadowApiNet.Utils;
 
 namespace ShadowApiNet.Tests;
@@ -24,8 +25,9 @@ public class HttpConnectHandlerTests
         var dbContext = new TestDbContext();
         var dbAccessor = new DbAccessor(dbContext);
         var connectHandler = new HttpConnectHandler(dbAccessor);
+        var pathInfo = new PathInfo([]);
 
-        var context = await connectHandler.Handle(mockContext, null, null);
+        var context = await connectHandler.Handle(mockContext, pathInfo);
         var response = context.Response;
 
         Assert.Equal(StatusCodes.Status501NotImplemented, response.StatusCode);

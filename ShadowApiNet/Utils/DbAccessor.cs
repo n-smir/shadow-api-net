@@ -85,7 +85,7 @@ internal class DbAccessor
 
     public List<string> GetTableNames()
     {
-        return _tables.Keys.Select(x => x.Name.ToLower()).ToList();
+        return [.. _tables.Keys.Select(x => x.Name.ToLower())];
     }
 
     public PropertyInfo GetTablePrimaryKey(string entityName)
